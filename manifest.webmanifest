@@ -1,7 +1,7 @@
 {
-  "name": "Strefa fali uderzeniowej – EOD",
-  "short_name": "Strefa EOD",
-  "description": "Kalkulator promienia strefy niebezpiecznej od powietrznej fali uderzeniowej (R = K·√Ł).",
+  "name": "Strefy niebezpieczne – EOD",
+  "short_name": "Strefy EOD",
+  "description": "Kalkulator stref niebezpiecznych EOD: fala uderzeniowa i rozrzut odłamków.",
   "lang": "pl",
   "start_url": "./",
   "scope": "./",
@@ -10,8 +10,23 @@
   "background_color": "#101310",
   "theme_color": "#141814",
   "icons": [
-    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }
