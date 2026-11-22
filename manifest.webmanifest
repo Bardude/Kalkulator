@@ -1,7 +1,7 @@
 {
   "name": "Strefy niebezpieczne – EOD",
   "short_name": "Strefy EOD",
-  "description": "Kalkulator stref niebezpiecznych EOD: fala uderzeniowa i rozrzut odłamków.",
+  "description": "Kalkulator stref niebezpiecznych EOD: fala uderzeniowa, rozrzut odłamków, strefy niszczenia wg IATG/IMAS, równoważnik TNT.",
   "lang": "pl",
   "start_url": "./",
   "scope": "./",
