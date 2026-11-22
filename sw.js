@@ -1,6 +1,7 @@
 // Service worker – zapisuje aplikację w pamięci telefonu, żeby działała bez internetu.
 // Po każdej zmianie plików podbij numer wersji, żeby telefony pobrały nową wersję.
-const CACHE = 'strefa-eod-v9';
+const PREFIX = 'strefa-eod-';
+const CACHE = PREFIX + 'v10';
 const FILES = [
   './',
   './index.html',
@@ -17,7 +18,7 @@ self.addEventListener('install', e => {
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys()
-      .then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
+      .then(keys => Promise.all(keys.filter(k => k.startsWith(PREFIX) && k !== CACHE).map(k => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
