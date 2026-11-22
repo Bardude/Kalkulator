@@ -102,6 +102,22 @@
   .badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);margin-top:8px}
   .dot{width:8px;height:8px;border-radius:50%;background:#555}
   .dot.on{background:var(--ok);box-shadow:0 0 8px var(--ok)}
+  .seg button{font-size:15px}
+  td code{white-space:nowrap;font-size:13px}
+  .note{margin-top:12px;font-size:13.5px;line-height:1.45;color:var(--muted)}
+  .note b{color:var(--text)}
+  .qd{display:grid;gap:0;margin-top:4px}
+  .qd .row{display:grid;grid-template-columns:1fr auto;align-items:center;gap:4px 12px;padding:12px 2px;border-bottom:1px solid #262c25}
+  .qd .row:last-child{border-bottom:0}
+  .qd .nm{font-weight:700;font-size:16px}
+  .qd .ds{grid-column:1/2;font-size:13px;color:var(--muted);line-height:1.35}
+  .qd .val{grid-row:1/3;grid-column:2;text-align:right;font-size:38px;font-weight:800;color:var(--text);font-variant-numeric:tabular-nums;line-height:1}
+  .qd .val small{font-size:.45em;margin-left:4px;color:var(--muted)}
+  .qd .fx{grid-column:1/3;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;color:var(--muted)}
+  .qd .row.key .val{color:var(--accent);font-size:46px}
+  .qd .row.key .nm{color:var(--accent)}
+  .qd .min{color:#f3c58a}
+  .src{font-size:12.5px;color:var(--muted);line-height:1.5;margin-top:10px}
   [hidden]{display:none!important}
 </style>
 </head>
@@ -118,6 +134,7 @@
   <div class="seg" role="group" aria-label="Rodzaj obliczeń">
     <button type="button" data-mode="fala" aria-pressed="true">Fala uderzeniowa</button>
     <button type="button" data-mode="odl" aria-pressed="false">Odłamki</button>
+    <button type="button" data-mode="imas" aria-pressed="false">IMAS/<wbr>NATO</button>
   </div>
 
   <!-- ========== FALA UDERZENIOWA ========== -->
@@ -211,6 +228,120 @@
     </div>
   </section>
 
+
+  <!-- ========== IMAS / NATO ========== -->
+  <section id="v-imas" hidden>
+    <div class="seg small" role="group" aria-label="Rodzaj obliczeń IMAS/NATO" style="margin-bottom:14px">
+      <button type="button" data-imas="dem" aria-pressed="true">Niszczenie<br><small style="font-weight:600;opacity:.75">IATG 01.80 / IMAS</small></button>
+      <button type="button" data-imas="qd" aria-pressed="false">Odległości QD<br><small style="font-weight:600;opacity:.75">HD 1.1</small></button>
+    </div>
+
+    <!-- --- niszczenie --- -->
+    <div id="imas-dem">
+      <div class="card">
+        <label for="dtyp">Rodzaj niszczonego materiału</label>
+        <div class="select-wrap">
+          <select id="dtyp">
+            <option value="frag">Amunicja odłamkowa</option>
+            <option value="bare">Sam MW (bez obudowy)</option>
+          </select>
+        </div>
+        <div class="hint" id="dhint"></div>
+        <div class="gap"></div>
+        <label for="auw" id="auwLab">Masa całkowita AUW</label>
+        <div class="input-wrap">
+          <input id="auw" type="text" inputmode="decimal" autocomplete="off" placeholder="0,0">
+          <span class="unit">kg</span>
+        </div>
+        <div class="err" id="err3"></div>
+      </div>
+
+      <div class="card result empty" id="res3" aria-live="polite">
+        <div class="pair">
+          <div>
+            <div class="lbl" id="d1Lab">Teren otwarty</div>
+            <div class="sub" id="d1Sub" style="font-size:13.5px">brak kontroli dostępu</div>
+            <div class="big"><span id="d1">—</span><small>m</small></div>
+            <div class="calc" id="d1c" hidden></div>
+          </div>
+          <div class="divider" id="dDiv"></div>
+          <div class="blue" id="d2Box">
+            <div class="lbl">Teren kontrolowany</div>
+            <div class="sub" style="font-size:13.5px">kordon, wartownicy</div>
+            <div class="big"><span id="d2">—</span><small>m</small></div>
+            <div class="calc" id="d2c" hidden></div>
+          </div>
+        </div>
+        <div class="applied" id="dMsg">Wpisz masę</div>
+      </div>
+
+      <div class="card">
+        <div class="formula"><span>Wzory (IATG 01.80, tab. 24)</span></div>
+        <table style="margin-top:6px">
+          <tbody>
+            <tr><td>Odłamkowa, teren otwarty</td><td><code>D = 634·AUW<sup>1/6</sup></code></td></tr>
+            <tr><td>Odłamkowa, teren kontrolowany</td><td><code>D = 444·AUW<sup>1/6</sup></code></td></tr>
+            <tr><td>Sam MW, bez obudowy</td><td><code>D = 130·AUW<sup>1/3</sup></code></td></tr>
+          </tbody>
+        </table>
+        <div class="warn" style="margin-top:12px">Wynik to odległość, poza którą spodziewany jest <b>najwyżej jeden odłamek</b>. Wg IATG 01.80 nie jest to odległość absolutnie bezpieczna — wzory służą do szybkiego planowania na poligonach niszczenia.</div>
+        <div class="hint" style="margin-top:12px">
+          <b>Teren otwarty (634)</b> — nie da się zagwarantować, że w strefie nie znajdzie się osoba postronna: teren nieogrodzony i nieobstawiony, przechodzą drogi lub ścieżki, w pobliżu mieszkają ludzie, ktoś może wejść nieświadomie. Odległość musi chronić ludzi, którzy nie wiedzą o niszczeniu i nie są pod niczyją kontrolą.<br><br>
+          <b>Teren kontrolowany (444)</b> — zamknięty poligon albo strefa obstawiona wartownikami, zamknięte drogi, sygnały ostrzegawcze, sprawdzenie przed odpaleniem. W strefie są tylko osoby poinformowane i podporządkowane kierującemu pracami. Dlatego dopuszcza się odległość o ok. 30% mniejszą — przy nieco większym ryzyku szczątkowym dla ludzi świadomych zagrożenia.<br><br>
+          <b>Praktyczna reguła:</b> strefy 444 używaj tylko wtedy, gdy kordon jest rzeczywiście zapewniony na całym obwodzie strefy przez cały czas niszczenia. Jeśli nie ma pewności, że nikt postronny nie wejdzie — obowiązuje 634.
+        </div>
+        <details>
+          <summary>Co to jest AUW?</summary>
+          <p style="margin:8px 0 0">All Up Weight — <b>całkowita masa</b> niszczonej amunicji: materiał wybuchowy, korpusy, zapalniki, opakowania i palety oraz ładunki inicjujące (donorowe). Dla samego MW — masa materiału wybuchowego.</p>
+          <p style="margin:8px 0 0">Wzory dotyczą niszczenia wielu przedmiotów ułożonych w stos (multi-item). Źródło: IATG 01.80, pkt 9.1; IMAS TNMA 10.20/01.</p>
+        </details>
+      </div>
+    </div>
+
+    <!-- --- QD --- -->
+    <div id="imas-qd" hidden>
+      <div class="card">
+        <label for="neq">Masa netto MW (NEQ), ekw. TNT</label>
+        <div class="input-wrap">
+          <input id="neq" type="text" inputmode="decimal" autocomplete="off" placeholder="0">
+          <span class="unit">kg</span>
+        </div>
+        <div class="err" id="err4"></div>
+        <div class="gap"></div>
+        <label for="minf">Minimalna odległość odłamkowa</label>
+        <div class="select-wrap">
+          <select id="minf">
+            <option value="270">270 m — lekka, obwałowana</option>
+            <option value="400">400 m — ciężka / bez wału</option>
+            <option value="0">Bez minimum</option>
+          </select>
+        </div>
+        <div class="hint" id="mhint"></div>
+      </div>
+
+      <div class="card result empty" id="res4" aria-live="polite" style="text-align:left">
+        <div class="lbl" style="text-align:center">Odległości bezpieczne · D = K·Q<sup>1/3</sup></div>
+        <div class="qd" id="qd"></div>
+        <div class="applied" id="qMsg" style="text-align:center">Wpisz masę NEQ</div>
+      </div>
+
+      <div class="card">
+        <details>
+          <summary>Objaśnienie i źródła</summary>
+          <ul>
+            <li><b>PBD (8,0)</b> — między budynkami procesowymi/warsztatowymi na terenie składu.</li>
+            <li><b>PTRD (14,8)</b> — drogi publiczne, linie kolejowe, szlaki wodne.</li>
+            <li><b>IBD (22,2)</b> — budynki mieszkalne i miejsca pracy osób postronnych.</li>
+            <li><b>VBD (44,4)</b> — obiekty szczególnie wrażliwe: szkoły, szpitale, budynki z dużymi przeszkleniami.</li>
+          </ul>
+          <p style="margin:8px 0 0">Minimalna odległość odłamkowa: poniżej ok. <b>5600 kg</b> NEQ odłamki sięgają dalej niż fala uderzeniowa, dlatego stosuje się stałe minimum 270 m albo 400 m (zależnie od konstrukcji składowiska). Powyżej 5600 kg wzór wystarcza dla fali i odłamków.</p>
+          <p style="margin:8px 0 0">Odległości między magazynami (IMD) zależą od typu obu obiektów i odczytuje się je z tabel AASTP-1 — nie są tu liczone.</p>
+          <p class="src">Źródła: IATG 01.80, tab. 2 (K = 8,0 / 14,8 / 22,2 / 44,4); JSP 482 rozdz. 10-02 (wdrożenie AASTP-1 w UK), pkt 6.4.3 i 6.4.5 (minima 270/400 m, próg 5600 kg).</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
   <footer>
     Wartości orientacyjne.<br>
     Ostateczną strefę ustala kierownik prac zgodnie z obowiązującymi przepisami.
@@ -229,12 +360,12 @@
   function decimals(s){ var i = s.indexOf('.'); return i < 0 ? 0 : Math.min(s.length - i - 1, 3); }
 
   /* ---------- przełącznik trybu ---------- */
-  var TITLES = { fala: 'Strefa niebezpieczna<br>fali uderzeniowej', odl: 'Strefa rozrzutu<br>odłamków' };
+  var TITLES = { fala: 'Strefa niebezpieczna<br>fali uderzeniowej', odl: 'Strefa rozrzutu<br>odłamków', imas: 'Strefy wg<br>IATG / IMAS / NATO' };
   var modeBtns = document.querySelectorAll('[data-mode]');
   function setMode(m){
     if (!TITLES[m]) m = 'fala';
     for (var i=0;i<modeBtns.length;i++) modeBtns[i].setAttribute('aria-pressed', modeBtns[i].dataset.mode === m);
-    $('v-fala').hidden = m !== 'fala'; $('v-odl').hidden = m !== 'odl';
+    $('v-fala').hidden = m !== 'fala'; $('v-odl').hidden = m !== 'odl'; $('v-imas').hidden = m !== 'imas';
     $('title').innerHTML = TITLES[m]; store('mode', m);
   }
   for (var i=0;i<modeBtns.length;i++) modeBtns[i].addEventListener('click', function(){ setMode(this.dataset.mode); });
@@ -352,6 +483,87 @@
     $('applied').textContent = msg; renderTable(-1);
   }
 
+
+  /* ---------- IMAS / NATO ---------- */
+  function up(x){ return Math.ceil(x - 1e-9); }
+  var imasBtns = document.querySelectorAll('[data-imas]');
+  function setImas(s){
+    if (s !== 'dem' && s !== 'qd') s = 'dem';
+    for (var i=0;i<imasBtns.length;i++) imasBtns[i].setAttribute('aria-pressed', imasBtns[i].dataset.imas === s);
+    $('imas-dem').hidden = s !== 'dem'; $('imas-qd').hidden = s !== 'qd'; store('imas', s);
+  }
+  for (var i=0;i<imasBtns.length;i++) imasBtns[i].addEventListener('click', function(){ setImas(this.dataset.imas); });
+
+  var DHINTS = {
+    frag: '<b>Amunicja odłamkowa</b> — przedmioty z metalowym korpusem. Wpisz AUW: całkowitą masę z korpusami, zapalnikami, opakowaniem i ładunkami inicjującymi.',
+    bare: '<b>Sam MW</b> — odkryty materiał wybuchowy bez obudowy i bez ryzyka odłamków z korpusu. Wpisz masę materiału wybuchowego.'
+  };
+  var dtyp = $('dtyp'), auw = $('auw');
+  function updateDem(){
+    var F = dtyp.value === 'frag';
+    $('dhint').innerHTML = DHINTS[dtyp.value];
+    $('auwLab').textContent = F ? 'Masa całkowita AUW' : 'Masa materiału wybuchowego';
+    $('d2Box').hidden = !F; $('dDiv').hidden = !F;
+    $('d1Lab').textContent = F ? 'Teren otwarty' : 'Strefa niebezpieczna — sam MW';
+    $('d1Sub').hidden = !F;
+    var p = parse(auw.value);
+    $('err3').textContent = ''; auw.classList.remove('bad');
+    function empty(msg){ $('res3').classList.add('empty'); $('d1').textContent='—'; $('d2').textContent='—';
+      $('d1c').hidden = true; $('d2c').hidden = true; $('dMsg').textContent = msg; }
+    if (p.val === null) { empty('Wpisz masę'); return; }
+    if (!isFinite(p.val) || p.val <= 0) { auw.classList.add('bad'); $('err3').textContent = 'Podaj dodatnią liczbę, np. 25'; empty('Nieprawidłowa wartość'); return; }
+    var m = p.val, ms = fmt(m, decimals(p.raw));
+    $('res3').classList.remove('empty'); $('dMsg').textContent = '';
+    if (F) {
+      var r6 = Math.pow(m, 1/6), a = 634*r6, b = 444*r6;
+      $('d1').textContent = num(up(a)); $('d2').textContent = num(up(b));
+      $('d1c').hidden = false; $('d2c').hidden = false;
+      $('d1c').innerHTML = '<code>634 · ' + ms + '<sup>1/6</sup> = 634 · ' + fmt(r6,3) + ' = ' + fmt(a,1) + '\u00a0m</code>';
+      $('d2c').innerHTML = '<code>444 · ' + ms + '<sup>1/6</sup> = 444 · ' + fmt(r6,3) + ' = ' + fmt(b,1) + '\u00a0m</code>';
+      $('dMsg').innerHTML = 'Strefy 444 używaj tylko przy kordonie zapewnionym na całym obwodzie. W razie wątpliwości obowiązuje <b>' + num(up(a)) + ' m</b>.';
+    } else {
+      var r3 = Math.cbrt(m), c = 130*r3;
+      $('d1').textContent = num(up(c)); $('d1c').hidden = false; $('d2c').hidden = true;
+      $('d1c').innerHTML = '<code>130 · ' + ms + '<sup>1/3</sup> = 130 · ' + fmt(r3,3) + ' = ' + fmt(c,1) + '\u00a0m</code>';
+    }
+  }
+
+  var QD = [
+    { k:8.0,  nm:'PBD — budynki procesowe', ds:'Między budynkami warsztatowymi/procesowymi na terenie składu', min:false },
+    { k:14.8, nm:'PTRD — drogi publiczne', ds:'Drogi, linie kolejowe, szlaki wodne', min:true },
+    { k:22.2, nm:'IBD — budynki mieszkalne', ds:'Budynki mieszkalne, miejsca pracy osób postronnych', min:true, key:true },
+    { k:44.4, nm:'VBD — obiekty wrażliwe', ds:'Szkoły, szpitale, duże skupiska ludzi, duże przeszklenia', min:true }
+  ];
+  var MHINTS = {
+    "270": 'Minimum <b>270 m</b> — składowisko lekkiej konstrukcji, obwałowane. Stosowane, gdy NEQ &lt; 5600 kg.',
+    "400": 'Minimum <b>400 m</b> — konstrukcja cięższa, magazyny ziemne (igloo) lub obiekty bez obwałowania (ryzyko gruzu). Stosowane, gdy NEQ &lt; 5600 kg.',
+    "0":   '<b>Bez minimum</b> — tylko wzór na falę uderzeniową. Przy małych masach odłamki mogą sięgać dalej niż wynik!'
+  };
+  var neq = $('neq'), minf = $('minf');
+  function updateQd(){
+    $('mhint').innerHTML = MHINTS[minf.value];
+    var p = parse(neq.value);
+    $('err4').textContent = ''; neq.classList.remove('bad');
+    if (p.val === null || !isFinite(p.val) || p.val <= 0) {
+      if (p.val !== null) { neq.classList.add('bad'); $('err4').textContent = 'Podaj dodatnią liczbę, np. 1000'; }
+      $('res4').classList.add('empty'); $('qd').innerHTML = ''; $('qMsg').textContent = p.val === null ? 'Wpisz masę NEQ' : 'Nieprawidłowa wartość'; return;
+    }
+    var q = p.val, r3 = Math.cbrt(q), mn = Number(minf.value), small = q < 5600, h = '', anyMin = false;
+    for (var i=0;i<QD.length;i++){
+      var d = QD[i], raw = d.k * r3, val = up(raw), useMin = d.min && small && mn > 0 && val < mn;
+      if (useMin) { val = mn; anyMin = true; }
+      h += '<div class="row' + (d.key ? ' key' : '') + '"><div class="nm">' + d.nm + '</div>' +
+           '<div class="val">' + num(val) + '<small>m</small></div>' +
+           '<div class="ds">' + d.ds + '</div>' +
+           '<div class="fx">' + fmt(d.k,1) + ' · ' + fmt(q, decimals(p.raw)) + '<sup>1/3</sup> = ' + fmt(raw,1) + '\u00a0m' +
+           (useMin ? ' <span class="min">→ przyjęto minimum ' + mn + '\u00a0m</span>' : '') + '</div></div>';
+    }
+    $('res4').classList.remove('empty'); $('qd').innerHTML = h;
+    $('qMsg').innerHTML = small
+      ? (mn > 0 ? 'NEQ poniżej 5600 kg — dla PTRD, IBD i VBD obowiązuje minimum odłamkowe ' + mn + ' m.' + (anyMin ? '' : ' Wynik ze wzoru jest większy.') : '<span class="min">Uwaga: NEQ poniżej 5600 kg — bez minimum odłamkowego wynik może być zaniżony.</span>')
+      : 'NEQ ≥ 5600 kg — odległość ze wzoru chroni przed falą i odłamkami.';
+  }
+
   /* ---------- start ---------- */
   var savedK = load('k'); if (savedK && HINTS[savedK]) kEl.value = savedK;
   var savedL = load('l'); if (savedL) lEl.value = savedL;
@@ -360,6 +572,17 @@
   vEl.addEventListener('input', function(){ vals[typ] = vEl.value; store('v_' + typ, vEl.value); updateOdl(); });
   updateFala();
   setTyp(load('typ') || 'pocisk');
+  var sv;
+  sv = load('dtyp'); if (sv === 'frag' || sv === 'bare') dtyp.value = sv;
+  sv = load('auw'); if (sv) auw.value = sv;
+  sv = load('neq'); if (sv) neq.value = sv;
+  sv = load('minf'); if (sv && MHINTS[sv]) minf.value = sv;
+  dtyp.addEventListener('change', function(){ store('dtyp', dtyp.value); updateDem(); });
+  auw.addEventListener('input', function(){ store('auw', auw.value); updateDem(); });
+  neq.addEventListener('input', function(){ store('neq', neq.value); updateQd(); });
+  minf.addEventListener('change', function(){ store('minf', minf.value); updateQd(); });
+  updateDem(); updateQd();
+  setImas(load('imas') || 'dem');
   setMode(load('mode') || 'fala');
 
   /* ---------- tryb offline (service worker) ---------- */

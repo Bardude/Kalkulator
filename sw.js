@@ -1,6 +1,6 @@
 // Service worker – zapisuje aplikację w pamięci telefonu, żeby działała bez internetu.
 // Po każdej zmianie plików podbij numer wersji, żeby telefony pobrały nową wersję.
-const CACHE = 'strefa-eod-v2';
+const CACHE = 'strefa-eod-v4';
 const FILES = [
   './',
   './index.html',
